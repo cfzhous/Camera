@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.16)
+project(Camera)
+
+set(CMAKE_CXX_STANDARD 14)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+include(GitVersion)
+
+
+# Set project properties
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 0)
+set(PROJECT_VERSION_PATCH 0)
+set(PROJECT_VERSION_TWEAK ${REVISION_VERSION})
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${REVISION_VERSION}")
+message(STATUS "Compiling Version ${PROJECT_VERSION}")
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+configure_file(Version.h.in "Version.h")
+
+
+find_package(spdlog REQUIRED)
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+
+# 收集源文件
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src/logging SRCS)
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src/utils SRCS)
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src SRCS)
+
+
+add_executable(
+    ${PROJECT_NAME} ${SRCS}
+)
+target_compile_options(
+    ${PROJECT_NAME} PRIVATE -Wall -Wextra -g -Wl,--build-id
+)
+target_include_directories(
+    ${PROJECT_NAME} PRIVATE 
+    ${PROJECT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${PROJECT_BINARY_DIR}
+)
